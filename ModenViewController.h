@@ -1,5 +1,5 @@
 //
-//  ViewController.h
+//  ModenViewController.h
 //  zuoyou
 //
 //  Created by microe on 8/12/14.
@@ -7,7 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
-#import <MediaPlayer/MediaPlayer.h>
-@interface ViewController : UIViewController
+
+@interface ModenViewController : UIViewController
 
 @end

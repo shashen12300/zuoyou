@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>automaticmode</key>
+	<string>automatic</string>
+	<key>manualmode </key>
+	<string>manual</string>
+	<key>frequency</key>
+	<string>frequency</string>
+	<key>music</key>
+	<string>music</string>
+	<key>heating</key>
+	<string>heating</string>
+	<key>mode</key>
+	<string>mode</string>
+	<key>time</key>
+	<string>time</string>
+	<key>strength</key>
+	<string>Strength</string>
+	<key>backajust</key>
+	<string>backajust</string>
+	<key>setting</key>
+	<string>setting</string>
+	<key>twogroup</key>
+	<string>2 groups</string>
+	<key>massageshoulder</key>
+	<string>shoulder </string>
+	<key>massageback</key>
+	<string>back </string>
+	<key>massagewaist</key>
+	<string>waist</string>
+	<key>seatheating</key>
+	<string>seat heating</string>
+	<key>backheating </key>
+	<string>back heating </string>
+	<key>mode1</key>
+	<string>Mode1</string>
+	<key>mode2</key>
+	<string>Mode2</string>
+	<key>mode3</key>
+	<string>Mode3</string>
+	<key>mode4</key>
+	<string>Mode4</string>
+	<key>raindew</key>
+	<string>raid and dew</string>
+	<key>magicblue</key>
+	<string>magic blue</string>
+	<key>dawn</key>
+	<string>dawn</string>
+</dict>
+</plist>

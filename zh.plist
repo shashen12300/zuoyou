@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>automaticmode</key>
+	<string>自动模式</string>
+	<key>manualmode </key>
+	<string>手动模式</string>
+	<key>frequency</key>
+	<string>频率</string>
+	<key>music</key>
+	<string>音乐</string>
+	<key>heating</key>
+	<string>加热</string>
+	<key>mode</key>
+	<string>模式</string>
+	<key>time</key>
+	<string>时间</string>
+	<key>strength</key>
+	<string>强度</string>
+	<key>backajust</key>
+	<string>背部适应</string>
+	<key>setting</key>
+	<string>设置</string>
+	<key>twogroup</key>
+	<string>背部两组</string>
+	<key>massageshoulder</key>
+	<string>肩部按摩</string>
+	<key>massageback</key>
+	<string>背部按摩</string>
+	<key>massagewaist</key>
+	<string>腰部按摩</string>
+	<key>seatheating</key>
+	<string>底椅加热</string>
+	<key>backheating </key>
+	<string>背部加热</string>
+	<key>mode1</key>
+	<string>模式一</string>
+	<key>mode2</key>
+	<string>模式二</string>
+	<key>mode3</key>
+	<string>模式三</string>
+	<key>mode4</key>
+	<string>模式四</string>
+	<key>raindew</key>
+	<string>雨露</string>
+	<key>magicblue</key>
+	<string>幻蓝</string>
+	<key>dawn</key>
+	<string>黎影</string>
+</dict>
+</plist>

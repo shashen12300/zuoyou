@@ -1,5 +1,5 @@
 //
-//  ViewController.h
+//  ManualViewController.h
 //  zuoyou
 //
 //  Created by microe on 8/12/14.
@@ -7,7 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
-#import <MediaPlayer/MediaPlayer.h>
-@interface ViewController : UIViewController
 
+@interface ManualViewController : UIViewController
+-(void)setBtnSel;//通知
 @end
