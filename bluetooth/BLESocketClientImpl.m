@@ -7,7 +7,7 @@
 //
 
 #import "BLESocketClientImpl.h"
-
+//http://blog.csdn.net/dwarven/article/details/37873777
 @interface BLESocketClientImpl()<CBCentralManagerDelegate, CBPeripheralDelegate>
 {
     NSString                *serviceUUID;
