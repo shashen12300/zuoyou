@@ -332,7 +332,7 @@
 
 - (void)cleanup
 {
-    if (!_discoveredPeripheral.isConnected) {
+    if (!_discoveredPeripheral.state) {
         return;
     }
     if (_discoveredPeripheral.services != nil) {
