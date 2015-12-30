@@ -7,39 +7,11 @@
 //
 
 #import "ViewController.h"
-#import "SettingViewController.h"
-static NSInteger myTimer = 0;
+
+
 @interface ViewController ()
-@property (weak, nonatomic) IBOutlet UILabel *firstLabel;
-@property (weak, nonatomic) IBOutlet UILabel *secondLabel;
-@property (weak, nonatomic) IBOutlet UILabel *thirdLabel;
-@property (weak, nonatomic) IBOutlet UILabel *forthLabel;
-@property (weak, nonatomic) IBOutlet UILabel *fiveLabel;
-@property (weak, nonatomic) IBOutlet UILabel *sixLabel;
-@property (weak, nonatomic) IBOutlet UILabel *sevenLabel;
-@property (weak, nonatomic) IBOutlet UILabel *eightLabel;
-@property (weak, nonatomic) IBOutlet UILabel *nineLabel;
-@property (weak, nonatomic) IBOutlet UILabel *tenLabel;
-@property (weak, nonatomic) IBOutlet UIImageView *RealBackgroundView;
 
-@property (weak, nonatomic) IBOutlet UIButton *firstBtn;
-@property (weak, nonatomic) IBOutlet UIButton *secondBtn;
-@property (weak, nonatomic) IBOutlet UIButton *thirdBtn;
-@property (weak, nonatomic) IBOutlet UIButton *forthBtn;
-@property (weak, nonatomic) IBOutlet UIButton *fithBtn;
-@property (weak, nonatomic) IBOutlet UIButton *sixBtn;
-@property (weak, nonatomic) IBOutlet UIButton *sevenBtn;
-@property (weak, nonatomic) IBOutlet UIButton *eigthBtn;
-@property (weak, nonatomic) IBOutlet UIButton *nineBtn;
-@property (weak, nonatomic) IBOutlet UIButton *tenBtn;
-@property (weak, nonatomic) IBOutlet UIButton *startBtn;
 
-//logo
-@property (weak, nonatomic) IBOutlet UIImageView *LogoImageView;
-@property (weak, nonatomic) IBOutlet UIImageView *titileLogoImageView;
-@property (weak, nonatomic) IBOutlet UIImageView *logoBackImageView;
-
-@property (nonatomic, strong) NSTimer *mytimer;//没有接收到应答按键0.2s发送一次数据  UP
 @end
 
 @implementation ViewController
@@ -49,208 +21,295 @@ static NSInteger myTimer = 0;
     [super viewDidLoad];
     NSLog(@"ViewController");
     
+
     [StaticValueClass settingView:[[NSUserDefaults standardUserDefaults] integerForKey:@"languageFlag"]];
     [StaticValueClass settingBgView:[[NSUserDefaults standardUserDefaults] integerForKey:@"BackgroundFlag"]];
-    [self setLanguageForModeView:[StaticValueClass getsettingView]];
-    [self setImageView:[StaticValueClass getsettingBgView]];
     
-    [self initCurrentStatus];
     
     [EADSessionController sharedController];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(_sessionDataReceived:) name:EADSessionDataReceivedNotification object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(OnPauseAction:) name:@"startBtnCurrentStatus" object:nil];
-    [self.view setUserInteractionEnabled:NO];
-    [self performSelector:@selector(hiddenLogoView) withObject:nil afterDelay:5.0f];
+
+    self.mytimer = [NSTimer scheduledTimerWithTimeInterval:0.2f target:self selector:@selector(sendMessage) userInfo:nil repeats:YES];
+       [self.mytimer setFireDate:[NSDate distantFuture]];
+        self.myTimer = 0;
+   // [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(openMassage) name:ISCONNECTED object:nil];
+    [self initView];
+
+}
+- (void)openMassage{
+    [logoView setHidden:TRUE];
+     [topView setUserInteractionEnabled:TRUE];
+     [self setCurrentView:0];
+}
+-(void)showView
+{
+    [logoView setHidden:TRUE];
+    [topView setUserInteractionEnabled:TRUE];
+    [self setCurrentView:0];
+
+}
+
+#pragma mark
+-(void)initView
+{
+    // [holder insertSubview:view atIndex:0];
+    NSArray *nibObjects;
+    if (isPad) {
+        nibObjects=[[NSBundle mainBundle] loadNibNamed:@"ViewController_iPad" owner:self options:nil];
+    }else
+    {
+        nibObjects=[[NSBundle mainBundle] loadNibNamed:@"View" owner:self options:nil];
+    }
     
-    self.mytimer = [NSTimer scheduledTimerWithTimeInterval:0.2f target:self selector:@selector(sendMessageToMCUFiveTimes) userInfo:nil repeats:YES];
-    [self.mytimer setFireDate:[NSDate distantFuture]];
+   
+   
+    
+    topView = [nibObjects objectAtIndex:1];
+    [topView setFrame:CGRectMake(0, 0,App_Frame_Width,App_Frame_Height)];
+    [self.view insertSubview:topView atIndex:3];
+    //[topView.RealBackground setImageView:[StaticValueClass getsettingBgView]];
+    [topView setImageView:[StaticValueClass getsettingBgView]];
+    topView.delegate = self;
+    
+    
+    mainView = [nibObjects objectAtIndex:2];
+    [topView.mTopView insertSubview:mainView atIndex:11];
+    mainView.delegate  = self;
+    topView.powerDelegate = mainView;
+    [mainView initCurrentStatus];
+    
+    autoView = [nibObjects objectAtIndex:3];
+    autoView.delegate = self;
+    [topView.mTopView insertSubview:autoView atIndex:10];
+     [[NSNotificationCenter defaultCenter] addObserver:autoView selector:@selector(setBtnActionForAnimation) name:@"AutoViewDataReceivedNotification" object:nil];
+    
+    manualView = [nibObjects objectAtIndex:4];
+    manualView.delegate = self;
+    [topView.mTopView insertSubview:manualView atIndex:9];
+    [[NSNotificationCenter defaultCenter] addObserver:manualView selector:@selector(setBtnSel) name:@"manualViewDataReceivedNotification" object:nil];
+    
+    frequencuView = [nibObjects objectAtIndex:5];
+    frequencuView.delegate = self;
+    [topView.mTopView insertSubview:frequencuView atIndex:8];
+     [[NSNotificationCenter defaultCenter] addObserver:frequencuView selector:@selector(setImageWithStrength) name:@"frequenceViewDataReceivedNotification" object:nil];
+    
+    
+    musicView = [nibObjects objectAtIndex:6];
+    [topView.mTopView insertSubview:musicView atIndex:7];
+    musicView.rootViewCtrl = self;
+    [musicView initMusicStaup];
+    mainView.musicView = musicView;
+    
+    heatView = [nibObjects objectAtIndex:7];
+    heatView.delegate = self;
+    [topView.mTopView insertSubview:heatView atIndex:6];
+    [[NSNotificationCenter defaultCenter] addObserver:heatView selector:@selector(setHeatState) name:@"heatingViewDataReceivedNotification" object:nil];
+    [heatView initHeatView];
+    
+    modenView = [nibObjects objectAtIndex:8];
+    modenView.delegate = self;
+    [topView.mTopView insertSubview:modenView atIndex:5];
+     [[NSNotificationCenter defaultCenter] addObserver:modenView selector:@selector(setBtnSel) name:@"modenViewDataReceivedNotification" object:nil];
+    
+    timeView = [nibObjects objectAtIndex:9];
+    timeView.delegate = self;
+    [topView.mTopView insertSubview:timeView atIndex:4];
+      [[NSNotificationCenter defaultCenter] addObserver:timeView selector:@selector(setTime) name:@"timeViewDataReceivedNotification" object:nil];
+    
+    
+    strengthView = [nibObjects objectAtIndex:10];
+    strengthView.delegate = self;
+    [topView.mTopView insertSubview:strengthView atIndex:3];
+    [[NSNotificationCenter defaultCenter] addObserver:strengthView selector:@selector(setImageWithStrength) name:@"strengthViewDataReceivedNotification" object:nil];
+    
+    updownView = [nibObjects objectAtIndex:11];
+    [topView.mTopView insertSubview:updownView atIndex:2];
+    [updownView OnInitTime];
+    
+    settingView = [nibObjects objectAtIndex:12];
+    [topView.mTopView insertSubview:settingView atIndex:1];
+    settingView.RealBackground = topView.RealBackground;
+//    [topView setHidden:NO];
+   
+    // [listView setHidden:TRUE];
+    [self setCurrentView:0];
+    
+    [topView setUserInteractionEnabled:NO];
+    logoView = [nibObjects objectAtIndex:0];
+    [logoView setFrame:CGRectMake(0, 0,App_Frame_Width,App_Frame_Height)];
+    [self.view insertSubview:logoView atIndex:20];
+    
+    
+    listView = [nibObjects objectAtIndex: 13];
+    [listView setCenter:topView.mTopView.center];
+    [logoView addSubview:listView];
+    listView.mPeripheralListView.delegate = listView;
+    listView.mPeripheralListView.dataSource = listView;
+     [[NSNotificationCenter defaultCenter] addObserver:listView selector:@selector(updateListView) name:MESSAGEFORLIST object:nil];
+    [listView updateListView];
+    listView.delegate = self;
+    
+  //  [self showView];
+}
+-(void)initTopView
+{
+    
+}
+-(void)setCurrentView:(NSInteger)index
+{
+    [mainView setHidden:TRUE];
+    [autoView setHidden:TRUE];
+    [manualView setHidden: TRUE];
+    [frequencuView setHidden:TRUE];
+    [musicView setHidden:TRUE];
+    [heatView setHidden:TRUE];
+    [modenView setHidden:TRUE];
+    [timeView setHidden:TRUE];
+    [strengthView setHidden:TRUE];
+    [updownView setHidden:TRUE];
+    [settingView setHidden:TRUE];
+    [topView.mImageView setHidden:NO];
+     [topView.mBackBtn setHidden:NO];
+    switch (index) {
+            case 0:
+        {
+            [mainView setHidden:FALSE];
+            [topView.mImageView setHidden:YES];
+            [topView.mBackBtn setHidden:YES];
+            [mainView setLanguage:[SettingView setLanguageForMainView:[StaticValueClass getsettingView]]];
+            break;
+        }
+        case 1:
+        {
+            [autoView setHidden:FALSE];
+            [topView.mImageView setImage:PNGIMAGE(@"main1")];
+            [autoView setBtnActionForAnimation];
+           
+        }
+            break;
+            case 2:
+        {
+            [manualView setHidden:FALSE];
+            [topView.mImageView setImage:PNGIMAGE(@"main2")];
+            [manualView setLanguage:[SettingView setLanguageForMainView:[StaticValueClass getsettingView]]];
+            break;
+        }
+            case 3:
+        {
+            [frequencuView setHidden:FALSE];
+            [topView.mImageView setImage:PNGIMAGE(@"main3")];
+            [frequencuView setLanguage:[SettingView setLanguageForMainView:[StaticValueClass getsettingView]]];
+            break;
+        }
+            case 4:
+        {
+            [musicView setHidden:FALSE];
+            [topView.mImageView setImage:PNGIMAGE(@"main4")];
+            break;
+        }
+            case 5:
+        {
+            [heatView setHidden:FALSE];
+            [topView.mImageView setImage:PNGIMAGE(@"main5")];
+            
+            break;
+        }
+            case  6:
+        {
+            [modenView setHidden:FALSE];
+            [topView.mImageView setImage:PNGIMAGE(@"main6")];
+            [modenView setLanguage:[SettingView setLanguageForMainView:[StaticValueClass getsettingView]]];
+            break;
+            
+        }
+            case 7:
+        {
+            [timeView setHidden:FALSE];
+            [topView.mImageView setImage:PNGIMAGE(@"main7")];
+            [timeView setLanguage:[SettingView setLanguageForMainView:[StaticValueClass getsettingView]]];
+            break;
+        }
+            case  8:
+        {
+            [strengthView setHidden:FALSE];
+            [topView.mImageView setImage:PNGIMAGE(@"main8")];
+            [strengthView setLanguage:[SettingView setLanguageForMainView:[StaticValueClass getsettingView]]];
+            break;
+        }
+            case 9:
+        {
+            [updownView setHidden:FALSE];
+            [topView.mImageView setImage:PNGIMAGE(@"main9")];
+            break;
+        }
+            case 10:
+        {
+            [settingView setHidden:FALSE];
+            [topView.mImageView setImage:PNGIMAGE(@"main10")];
+            [settingView setLanguageDic:[SettingView setLanguageForMainView:[StaticValueClass getsettingView]] selLanguage:[StaticValueClass getsettingView] setBg:[StaticValueClass getsettingBgView]];
+            break;
+        }
+            
+        default:
+            break;
+    }
+ //   [[nibObjects objectAtIndex:index] setHidden:FALSE];
+}
+-(void)showIndexView:(NSInteger)index
+{
+    [self setCurrentView:index];
 }
 -(void)viewWillAppear:(BOOL)animated
 {
-    [self setLanguageForModeView:[StaticValueClass getsettingView]];
-    [self setImageView:[StaticValueClass getsettingBgView]];
+    [EADSessionController sharedController];
 }
 -(void)hiddenLogoView
 {
     [self.view setUserInteractionEnabled:YES];
-    [self.LogoImageView setHidden:YES];
-    [self.titileLogoImageView setHidden:YES];
-    [self.logoBackImageView setHidden:YES];
-    self.LogoImageView = nil;
-    self.titileLogoImageView = nil;
-    self.logoBackImageView = nil;
-    
+   
 }
 -(void)sendMessageToMCUFiveTimes
 {
-    myTimer++;
-    if (myTimer > 4) {
+    [self.mytimer setFireDate:[NSDate distantPast]];
+    
+  
+}
+-(void)sendMessage
+{
+    self.myTimer++;
+    if (self.myTimer > 4) {
         [self.mytimer setFireDate:[NSDate distantFuture]];
-        myTimer = 0;
+        self.myTimer = 0;
     }
     [[EADSessionController sharedController] sendCommand];
 }
+
+
+
+
+-(void)sendMessageToRoStop
+{
+    [self.mytimer setFireDate:[NSDate distantPast]];
+}
+
 -(void)stopMessageToMCUFiveTimes
 {
     [self.mytimer setFireDate:[NSDate distantFuture]];
-    myTimer=0;
+    self.myTimer=0;
 }
--(void)setLanguageForModeView:(NSInteger)index
-{
-    NSDictionary *dic;
-    dic = [SettingViewController setLanguageForMainView:index];
-    
-    [self.firstLabel setAdjustsFontSizeToFitWidth:YES];
-    [self.secondLabel setAdjustsFontSizeToFitWidth:YES];
-    [self.thirdLabel setAdjustsFontSizeToFitWidth:YES];
-    [self.forthLabel setAdjustsFontSizeToFitWidth:YES];
-    [self.fiveLabel setAdjustsFontSizeToFitWidth:YES];
-    [self.sixLabel setAdjustsFontSizeToFitWidth:YES];
-    [self.sevenLabel setAdjustsFontSizeToFitWidth:YES];
-    [self.eightLabel setAdjustsFontSizeToFitWidth:YES];
-    [self.nineLabel setAdjustsFontSizeToFitWidth:YES];
-    [self.tenLabel setAdjustsFontSizeToFitWidth:YES];
-        [self.firstLabel setText:[dic valueForKey:@"automaticmode"] ];//设置强度
-        [self.secondLabel setText:[dic valueForKey:@"manualmode "] ];//设置强度
-        [self.thirdLabel setText:[dic valueForKey:@"frequency"] ];//设置强度
-        [self.forthLabel setText:[dic valueForKey:@"music"] ];//设置强度
-        [self.fiveLabel setText:[dic valueForKey:@"heating"] ];//设置强度
-        [self.sixLabel setText:[dic valueForKey:@"mode"] ];//设置强度
-        [self.sevenLabel setText:[dic valueForKey:@"time"] ];//设置强度
-        [self.eightLabel setText:[dic valueForKey:@"strength"] ];//设置强度
-        [self.nineLabel setText:[dic valueForKey:@"backajust"] ];//设置强度
-        [self.tenLabel setText:[dic valueForKey:@"setting"] ];//设置强度
-}
--(void)setImageView:(NSInteger)index
-{
-    switch (index) {
-        case 0:
-        {
 
-            [self.RealBackgroundView setImage: PNGIMAGE(@"bg2")];
-    
-            break;
-        }
-        case 1:
-        {
-            [self.RealBackgroundView setImage: PNGIMAGE(@"bg3")];
-            break;
-        }
-        case 2:
-        {
-            [self.RealBackgroundView setImage: PNGIMAGE(@"bg1")];
 
-            break;
-        }
-            
-        default:
-            break;
-    }
-}
+
+
 - (IBAction)OnBtnTouchUpAction:(UIButton *)sender {
-    switch (sender.tag) {
-        case 1:
-        {
-            NSLog(@"1");
-            break;
-        }
-        case 2:
-        {
-           
-            break;
-        }
-        case 3:
-        {
-           
-            break;
-        }
-        case 4:
-        {
-            NSLog(@"4");
-            break;
-        }
-        case 5:
-        {
-            NSLog(@"5");
-            break;
-        }
-        case 6:
-        {
-            NSLog(@"6");
-            break;
-        }
-        case 7:
-        {
-            NSLog(@"7");
-            break;
-        }
-        case 8:
-        {
-            NSLog(@"8");
-            break;
-        }
-        case 9:
-        {
-            NSLog(@"9");
-            break;
-        }
-        case 10:
-        {
-            NSLog(@"10");
-            break;
-        }
-            
-        default:
-            break;
-    }
+   
 }
 -(void)initCurrentStatus
 {
     [StaticValueClass StartBtnState:0];
-    [self.firstBtn setEnabled:NO];
-    [self.secondBtn setEnabled:NO];
-    [self.thirdBtn setEnabled:NO];
-    [self.forthBtn setEnabled:NO];
-    [self.fithBtn setEnabled:NO];
-    [self.sixBtn setEnabled:NO];
-    [self.sevenBtn setEnabled:NO];
-    [self.eigthBtn setEnabled:NO];
-    //[self.nineBtn setEnabled:NO];
-    [self.startBtn setImage:PNGIMAGE(@"power2") forState:UIControlStateNormal];
+  
 }
-- (IBAction)OnPauseAction:(id)sender {
-    NSInteger index = [StaticValueClass getStartBtnState];
-    if (index == 1) {
-        [StaticValueClass StartBtnState:0];
-        [self.firstBtn setEnabled:NO];
-        [self.secondBtn setEnabled:NO];
-        [self.thirdBtn setEnabled:NO];
-        [self.forthBtn setEnabled:NO];
-        [self.fithBtn setEnabled:NO];
-        [self.sixBtn setEnabled:NO];
-        [self.sevenBtn setEnabled:NO];
-        [self.eigthBtn setEnabled:NO];
-        //[self.nineBtn setEnabled:NO];
-        [self.startBtn setImage:PNGIMAGE(@"power2") forState:UIControlStateNormal];
-        [[MPMusicPlayerController iPodMusicPlayer] pause];
-        [[EADSessionController sharedController] sendOutBuf:0x02];
-        [self.mytimer setFireDate:[NSDate distantPast]];
-    }
-    else
-    {
-        [StaticValueClass StartBtnState:1];
-        [self.firstBtn setEnabled:YES];
-        [self.secondBtn setEnabled:YES];
-        [self.thirdBtn setEnabled:YES];
-        [self.forthBtn setEnabled:YES];
-        [self.fithBtn setEnabled:YES];
-        [self.sixBtn setEnabled:YES];
-        [self.sevenBtn setEnabled:YES];
-        [self.eigthBtn setEnabled:YES];
-        [self.startBtn setImage:PNGIMAGE(@"Power1") forState:UIControlStateNormal];
-        
-    }
-}
+
 
 - (void)didReceiveMemoryWarning
 {
